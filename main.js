@@ -8,32 +8,6 @@ var cp = require('child_process')
 var vlcCommand = require('vlc-command')
 
 exports.startVLC = file => {
-  console.log('FILE: ', file);
-  var directory = path.dirname(file).replace(/\s/g, '');
-  console.log('DIR: |' + directory + '|');
-  var gg = '--http-src ' + directory;
-  console.log(gg);
-  // vlcCommand(function (err, cmd) {
-  //   if (err) return console.error('could not find vlc command path')
-  //   console.log(cmd);
-  //   if (process.platform === 'win32') {
-
-  //     console.log('\n\nwindows!!');
-  //     cp.execFile(cmd, ['--extraintf http ',gg,' --http-password 1234'], function (err, stdout) {
-  //       if (err) return console.error(err)
-  //       console.log(stdout)
-  //     })
-  //   } else {
-  //     console.log('\n\n NOT windows!!');
-  //     cp.exec(cmd + ' --extraintf http --http-src '+ directory +' --http-password 1234', function (err, stdout) {
-  //       if (err) return console.error(err)
-  //       console.log(stdout)
-  //     })
-  //   }
-  // })
-  // console.log('vlc ', directory ,' --http-password 1234');
-  // var g = '"D:\Downloads\Game.of.Thrones.S07E05.Eastwatch.1080p.AMZN.WEB-DL.DDP5.1.H.264-GoT[ettv]\Game.of.Thrones.S07E05.Eastwatch.1080p.AMZN.WEB-DL.DDP5.1.H.264-GoT[ettv].mkv"';
-  // cmd.run('vlc --extraintf http --http-src '+directory+' --http-password 1234');
   vlcCommand((err, vlcpath) => {
     console.log(err);
     console.log('\"'+vlcpath+'\"');
@@ -46,10 +20,7 @@ exports.startVLC = file => {
     cmd.run(vlcpath+ ' --extraintf http --http-password 1234');
   }
   })
-
-  //    'vlc --extraintf http --http-src D:\\Downloads\\Game.of.Thrones.S07E05.Eastwatch.1080p.AMZN.WEB-DL.DDP5.1.H.264-GoT[ettv]\\ --http-password 1234'
-  // cmd.run('vlc --extraintf http --http-src ', directory ,'--http-password 1234');
-}
+};
 
 var BrowserWindow = require('browser-window');  // Module to create native browser window.
 

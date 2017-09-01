@@ -5,14 +5,21 @@ const localSocket = 'http://localhost:3000';
 
 // Mixing jQuery and Node.js code in the same file? Yes please!
 
-function playFile() {
+function loadFile() {
   console.log("playing", selectedFilepath);
-  sendToVLC('?command=in_play&input=file:///' + selectedFilepath);
+  sendToVLC('?command=in_play&input=file:///' + selectedFilepath, null, () => {
+    sendToVLC('?command=pl_forcepause', null, () => {
+      sendToVLC('?command=seek&val=0');
+    })
+  });
 }
 
-function sendToVLC(command) {
-  $.get('http://:1234@127.0.0.1:8080/requests/status.xml' + command, function (response) {
+function sendToVLC(command, error, success) {
+  $.get('http://:1234@127.0.0.1:8080/requests/status.json' + command, null, function (response) {
     console.log(response);
+    if (success) {
+      success(response);
+    }
   });
 }
 
@@ -26,23 +33,26 @@ function pause() {
   sendToVLC('?command=pl_forcepause');
 }
 
-function getStatus() {
+function getStatus(error, success) {
   $.get('http://:1234@127.0.0.1:8080/requests/status.xml', function (response) {
     console.log(response);
+    if (response && success) {
+      success(response);
+    }
   });
 }
 
-function sendReady(){
+function sendReady() {
   console.log('readyyyyyyy');
   socket.emit('client ready');
 }
 
-function sendPlay(){
+function sendPlay() {
   console.log('RQ play');
   socket.emit('request play');
 }
 
-function sendPause(){
+function sendPause() {
   console.log('RQ pause');
   socket.emit('request pause');
 }
@@ -56,11 +66,13 @@ function onFileInputChanged(files) {
   console.log('loaded!!');
   socket.emit('file loaded', filepath);
 }
+
 function togglePlay() {
   $.get('http://:1234@127.0.0.1:8080/requests/status.json?command=pl_pause', function (response) {
     console.log(response);
   });
 }
+
 var socket;
 
 $(function () {
@@ -72,8 +84,8 @@ $(function () {
   var shell = require('shell');
 
 
-  socket = io(localSocket);// localhost
-  // socket = io(herokuSocket);
+  // socket = io(localSocket);// localhost
+  socket = io(herokuSocket);
 
   socket.on('welcome', function () {
     console.log('\n\nserver responded!!!');
@@ -81,7 +93,7 @@ $(function () {
 
   socket.on('everyone ready', function () {
     console.log('everyone ready');
-    playFile();
+    loadFile();
   });
 
   socket.on('fileLoaded', function () {
@@ -117,7 +129,7 @@ function disconnect() {
 
 'use strict';
 
-; (function (document, window, index) {
+;(function (document, window, index) {
   var inputs = document.querySelectorAll('.inputfile');
   Array.prototype.forEach.call(inputs, function (input) {
     var label = input.nextElementSibling,
@@ -138,7 +150,11 @@ function disconnect() {
     });
 
     // Firefox bug fix
-    input.addEventListener('focus', function () { input.classList.add('has-focus'); });
-    input.addEventListener('blur', function () { input.classList.remove('has-focus'); });
+    input.addEventListener('focus', function () {
+      input.classList.add('has-focus');
+    });
+    input.addEventListener('blur', function () {
+      input.classList.remove('has-focus');
+    });
   });
 }(document, window, 0));
